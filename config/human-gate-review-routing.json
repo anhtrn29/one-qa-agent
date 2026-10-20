@@ -1,0 +1,31 @@
+{
+  "configurationId": "one-qa-agent-v1-human-gate-review-routing",
+  "version": 1,
+  "sourceContractId": "one-qa-agent-v1-frozen-workflow",
+  "gates": [
+    {
+      "stageId": "human-gate-1",
+      "requireApproval": true,
+      "approver": { "kind": "any_human" },
+      "approveToStageKey": "test-design-testcases",
+      "reject": { "destination": "RESOLVED", "toStageKey": "qa-overview" },
+      "requestChanges": { "destination": "RESOLVED", "toStageKey": "qa-overview" }
+    },
+    {
+      "stageId": "human-gate-2-automation-candidate",
+      "requireApproval": true,
+      "approver": { "kind": "any_human" },
+      "approveToStageKey": "command-code-playwright",
+      "reject": { "destination": "RESOLVED", "toStageKey": "triage" },
+      "requestChanges": { "destination": "RESOLVED", "toStageKey": "triage" }
+    },
+    {
+      "stageId": "human-gate-3",
+      "requireApproval": true,
+      "approver": { "kind": "any_human" },
+      "approveToStageKey": "final-report",
+      "reject": { "destination": "RESOLVED", "toStageKey": "automation-triage" },
+      "requestChanges": { "destination": "RESOLVED", "toStageKey": "automation-triage" }
+    }
+  ]
+}

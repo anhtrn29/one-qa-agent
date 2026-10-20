@@ -1,0 +1,257 @@
+{
+  "contractId": "one-qa-agent-v1-frozen-workflow",
+  "version": 1,
+  "status": "ACTIVE_POLICY",
+  "ownership": {
+    "oneQaAgent": "QA-specific workflow policy, stage contracts, and transition rules",
+    "paperclip": "PROPOSED owner of task/execution state, approvals, and audit; integration is not verified",
+    "hermes": "Agent execution, tools, skills, and session runtime at the integration boundary",
+    "playwrightCommandCode": "Automation execution layer",
+    "launcher": "Infrastructure readiness only"
+  },
+  "humanGateStates": {
+    "human-gate-1": "UNAPPROVED",
+    "human-gate-2-automation-candidate": "UNAPPROVED",
+    "human-gate-3": "UNAPPROVED"
+  },
+  "artifactTypes": [
+    "scope-definition",
+    "source-register",
+    "requirement-record",
+    "qa-overview",
+    "human-approval-record",
+    "testcase-or-exploratory-charter",
+    "manual-preflight-record",
+    "manual-execution-record",
+    "execution-evidence",
+    "testcase-result",
+    "triage-record",
+    "automation-candidate-record",
+    "automation-implementation-record",
+    "automation-review-record",
+    "playwright-run-record",
+    "automation-evidence",
+    "automation-triage-record",
+    "final-report"
+  ],
+  "stages": [
+    {
+      "id": "scope",
+      "name": "Scope",
+      "purpose": "Record the requested QA scope without inferring release scope.",
+      "prerequisites": [],
+      "requiredInputs": ["scope-definition"],
+      "requiredOutputs": ["scope-definition"],
+      "blockedWhen": ["scope-definition is missing"]
+    },
+    {
+      "id": "sources-requirements",
+      "name": "Sources / Requirements",
+      "purpose": "Register authoritative sources and separate confirmed requirements from unresolved items.",
+      "prerequisites": ["scope"],
+      "requiredInputs": ["scope-definition", "source-register"],
+      "requiredOutputs": ["source-register", "requirement-record"],
+      "blockedWhen": ["authoritative source evidence is missing for a claimed requirement"]
+    },
+    {
+      "id": "qa-overview",
+      "name": "QA Overview",
+      "purpose": "Summarize confirmed scope, requirements, risks, and Need clarification items with traceability.",
+      "prerequisites": ["sources-requirements"],
+      "requiredInputs": ["scope-definition", "source-register", "requirement-record"],
+      "requiredOutputs": ["qa-overview"],
+      "blockedWhen": ["a product expectation is asserted without source evidence"]
+    },
+    {
+      "id": "human-gate-1",
+      "name": "Human Gate #1",
+      "purpose": "Obtain human approval before Test Design / Testcases.",
+      "prerequisites": ["qa-overview"],
+      "requiredInputs": ["qa-overview"],
+      "requiredOutputs": ["human-approval-record"],
+      "humanGate": {"number": 1, "defaultState": "UNAPPROVED", "requiredForNextStage": "APPROVED"},
+      "blockedWhen": ["approval is absent", "approval is not APPROVED", "approval is generated only by an agent", "infrastructure READY is treated as approval"]
+    },
+    {
+      "id": "test-design-testcases",
+      "name": "Test Design / Testcases",
+      "purpose": "Create source-traceable testcases or exploratory charters.",
+      "prerequisites": ["human-gate-1"],
+      "requiredInputs": ["requirement-record", "human-approval-record"],
+      "requiredOutputs": ["testcase-or-exploratory-charter"],
+      "blockedWhen": ["Human Gate #1 is not APPROVED"]
+    },
+    {
+      "id": "manual-preflight",
+      "name": "Manual Preflight",
+      "purpose": "Record readiness for the approved manual QA scope.",
+      "prerequisites": ["test-design-testcases"],
+      "requiredInputs": ["testcase-or-exploratory-charter"],
+      "requiredOutputs": ["manual-preflight-record"],
+      "blockedWhen": ["testcases or exploratory charters are missing"]
+    },
+    {
+      "id": "manual-execution",
+      "name": "Manual Execution",
+      "purpose": "Execute approved testcases or exploratory charters and record actual observations.",
+      "prerequisites": ["manual-preflight"],
+      "requiredInputs": ["manual-preflight-record", "testcase-or-exploratory-charter"],
+      "requiredOutputs": ["manual-execution-record"],
+      "blockedWhen": ["manual preflight is missing", "testcase or charter is missing"]
+    },
+    {
+      "id": "evidence-tc-result",
+      "name": "Evidence + TC Result",
+      "purpose": "Attach traceable actual-execution evidence and testcase results.",
+      "prerequisites": ["manual-execution"],
+      "requiredInputs": ["manual-execution-record"],
+      "requiredOutputs": ["execution-evidence", "testcase-result"],
+      "blockedWhen": ["evidence is not traceable to an actual execution"]
+    },
+    {
+      "id": "triage",
+      "name": "Triage",
+      "purpose": "Classify observed issues without inventing expected behavior.",
+      "prerequisites": ["evidence-tc-result"],
+      "requiredInputs": ["execution-evidence", "testcase-result"],
+      "requiredOutputs": ["triage-record"],
+      "blockedWhen": ["expected behavior lacks requirement evidence"]
+    },
+    {
+      "id": "human-gate-2-automation-candidate",
+      "name": "Human Gate #2 / Automation Candidate",
+      "purpose": "Obtain human approval of an automation candidate before automation implementation.",
+      "prerequisites": ["triage"],
+      "requiredInputs": ["triage-record", "automation-candidate-record"],
+      "requiredOutputs": ["human-approval-record"],
+      "humanGate": {"number": 2, "defaultState": "UNAPPROVED", "requiredForNextStage": "APPROVED"},
+      "blockedWhen": ["approval is absent", "approval is not APPROVED", "automation candidate is not identified"]
+    },
+    {
+      "id": "command-code-playwright",
+      "name": "Command Code / Playwright",
+      "purpose": "Implement approved automation in the persistent automation workspace.",
+      "prerequisites": ["human-gate-2-automation-candidate"],
+      "requiredInputs": ["automation-candidate-record", "human-approval-record"],
+      "requiredOutputs": ["automation-implementation-record"],
+      "blockedWhen": ["Human Gate #2 is not APPROVED"]
+    },
+    {
+      "id": "automation-review",
+      "name": "Automation Review",
+      "purpose": "Review automation implementation and its traceability before execution.",
+      "prerequisites": ["command-code-playwright"],
+      "requiredInputs": ["automation-implementation-record"],
+      "requiredOutputs": ["automation-review-record"],
+      "blockedWhen": ["automation implementation record is missing"]
+    },
+    {
+      "id": "playwright-run",
+      "name": "Playwright Run",
+      "purpose": "Run reviewed automation and record execution identity.",
+      "prerequisites": ["automation-review"],
+      "requiredInputs": ["automation-review-record"],
+      "requiredOutputs": ["playwright-run-record"],
+      "blockedWhen": ["automation review is missing"]
+    },
+    {
+      "id": "automation-evidence",
+      "name": "Automation Evidence",
+      "purpose": "Capture evidence generated by the actual automation run.",
+      "prerequisites": ["playwright-run"],
+      "requiredInputs": ["playwright-run-record"],
+      "requiredOutputs": ["automation-evidence"],
+      "blockedWhen": ["evidence is not traceable to the Playwright run"]
+    },
+    {
+      "id": "automation-triage",
+      "name": "Automation Triage",
+      "purpose": "Classify automation outcomes as product bug, script issue, environment issue, flaky test, or requirement ambiguity.",
+      "prerequisites": ["automation-evidence"],
+      "requiredInputs": ["automation-evidence"],
+      "requiredOutputs": ["automation-triage-record"],
+      "blockedWhen": ["a failed automation test is treated automatically as a product bug"]
+    },
+    {
+      "id": "human-gate-3",
+      "name": "Human Gate #3",
+      "purpose": "Obtain human approval before Final Report and Done.",
+      "prerequisites": ["automation-triage"],
+      "requiredInputs": ["automation-triage-record"],
+      "requiredOutputs": ["human-approval-record"],
+      "humanGate": {"number": 3, "defaultState": "UNAPPROVED", "requiredForNextStage": "APPROVED"},
+      "blockedWhen": ["approval is absent", "approval is not APPROVED", "approval is generated only by an agent"]
+    },
+    {
+      "id": "final-report",
+      "name": "Final Report",
+      "purpose": "Produce the final QA report from traceable execution and triage records.",
+      "prerequisites": ["human-gate-3"],
+      "requiredInputs": ["human-approval-record", "triage-record", "automation-triage-record"],
+      "requiredOutputs": ["final-report"],
+      "blockedWhen": ["Human Gate #3 is not APPROVED"]
+    },
+    {
+      "id": "done",
+      "name": "Done",
+      "purpose": "Mark the workflow complete only after the approved final report exists.",
+      "prerequisites": ["final-report"],
+      "requiredInputs": ["final-report", "human-approval-record"],
+      "requiredOutputs": [],
+      "terminal": true,
+      "blockedWhen": ["final report is missing", "Human Gate #3 is not APPROVED"]
+    }
+  ],
+  "transitions": [
+    {"from": "scope", "to": "sources-requirements", "condition": "previous stage outputs exist"},
+    {"from": "sources-requirements", "to": "qa-overview", "condition": "previous stage outputs exist"},
+    {"from": "qa-overview", "to": "human-gate-1", "condition": "previous stage outputs exist"},
+    {"from": "human-gate-1", "to": "test-design-testcases", "condition": "Human Gate #1 approval is APPROVED"},
+    {"from": "test-design-testcases", "to": "manual-preflight", "condition": "previous stage outputs exist"},
+    {"from": "manual-preflight", "to": "manual-execution", "condition": "previous stage outputs exist"},
+    {"from": "manual-execution", "to": "evidence-tc-result", "condition": "previous stage outputs exist"},
+    {"from": "evidence-tc-result", "to": "triage", "condition": "previous stage outputs exist"},
+    {"from": "triage", "to": "human-gate-2-automation-candidate", "condition": "previous stage outputs exist"},
+    {"from": "human-gate-2-automation-candidate", "to": "command-code-playwright", "condition": "Human Gate #2 approval is APPROVED"},
+    {"from": "command-code-playwright", "to": "automation-review", "condition": "previous stage outputs exist"},
+    {"from": "automation-review", "to": "playwright-run", "condition": "previous stage outputs exist"},
+    {"from": "playwright-run", "to": "automation-evidence", "condition": "previous stage outputs exist"},
+    {"from": "automation-evidence", "to": "automation-triage", "condition": "previous stage outputs exist"},
+    {"from": "automation-triage", "to": "human-gate-3", "condition": "previous stage outputs exist"},
+    {"from": "human-gate-3", "to": "final-report", "condition": "Human Gate #3 approval is APPROVED"},
+    {"from": "final-report", "to": "done", "condition": "previous stage outputs exist and Human Gate #3 approval is APPROVED"},
+    {"from": "human-gate-1", "to": "qa-overview", "kind": "reject-revision", "condition": "Human Gate #1 Reject decision returns to QA Overview for revision"},
+    {"from": "human-gate-2-automation-candidate", "to": "triage", "kind": "reject-revision", "condition": "Human Gate #2 Reject decision returns to Triage for revision"},
+    {"from": "human-gate-3", "to": "automation-triage", "kind": "reject-revision", "condition": "Human Gate #3 Reject decision returns to Automation Triage for revision"}
+  ],
+  "evidenceAndTraceability": {
+    "requirements": "Every confirmed requirement must cite its source. Exploratory hypotheses must be separately labeled.",
+    "manualEvidence": "Evidence must be traceable to an actual manual execution record.",
+    "automationEvidence": "Evidence must be traceable to an actual Playwright run record.",
+    "automationFailure": "A failed automation test is not automatically a product bug."
+  },
+  "integration": {
+    "paperclip": {
+      "verificationStatus": "UNKNOWN",
+      "stageMapping": [
+        {"contractStage": "all", "proposedTarget": "Paperclip task/execution state", "verificationStatus": "UNKNOWN"},
+        {"contractStage": "human-gate-1", "proposedTarget": "Paperclip approval", "verificationStatus": "UNKNOWN"},
+        {"contractStage": "human-gate-2-automation-candidate", "proposedTarget": "Paperclip approval", "verificationStatus": "UNKNOWN"},
+        {"contractStage": "human-gate-3", "proposedTarget": "Paperclip approval", "verificationStatus": "UNKNOWN"}
+      ],
+      "todo": "Verify Paperclip task, approval, audit, and resume semantics before implementing an adapter."
+    },
+    "hermes": {
+      "verificationStatus": "UNKNOWN",
+      "responsibilities": ["agent execution", "tool invocation", "skill invocation", "session runtime"],
+      "boundary": "Hermes must not become the source of truth for QA stage, human approval, or completion state.",
+      "todo": "Verify Hermes integration interface and session-to-task correlation before implementing an adapter."
+    }
+  },
+  "doneConditions": [
+    "final-report exists",
+    "Human Gate #3 approval is APPROVED",
+    "all required evidence and triage records are traceable",
+    "no stage was skipped"
+  ]
+}

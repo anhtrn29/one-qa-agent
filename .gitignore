@@ -1,0 +1,20 @@
+# Local runtime state and service output
+.demo-runtime/
+logs/
+
+# Secrets and machine-specific configuration
+.env
+.env.*
+*.key
+*.pem
+
+# Dependencies and generated output
+node_modules/
+coverage/
+dist/
+
+# Editor and operating-system files
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store

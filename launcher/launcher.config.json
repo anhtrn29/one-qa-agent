@@ -1,0 +1,51 @@
+{
+    "docker":  {
+                   "desktopExe":  "C:\\Users\\dell\\AppData\\Local\\Programs\\DockerDesktop\\Docker Desktop.exe",
+                   "engineWaitSeconds":  120
+               },
+    "hermes":  {
+                   "containerName":  "hermes",
+                   "healthUrl":  "http://127.0.0.1:8642/health",
+                   "startTimeoutSeconds":  90
+               },
+    "nineRouter":  {
+                       "port":  20128,
+                       "healthUrl":  "http://127.0.0.1:20128/v1/models",
+                       "appDir":  "C:\\Users\\dell\\AppData\\Roaming\\npm\\node_modules\\9router\\app",
+                       "entry":  "custom-server.js",
+                       "envPort":  "20128",
+                       "envHostname":  "0.0.0.0",
+                       "startTimeoutSeconds":  90
+                   },
+    "paperclip":  {
+                      "port":  3100,
+                      "healthUrl":  "http://127.0.0.1:3100",
+                      "commandPath":  "C:\\Users\\dell\\AppData\\Roaming\\npm\\paperclipai.cmd",
+                      "commandArgs":  [
+                                          "run"
+                                      ],
+                      "startTimeoutSeconds":  90
+                  },
+    "qaBrowser":  {
+                      "port":  9222,
+                      "cdpHttpEndpoint":  "http://127.0.0.1:9222",
+                      "cdpVersionUrl":  "http://127.0.0.1:9222/json/version",
+                      "appUrl":  "http://dev-web.nexus.internal/projects",
+                      "guardianScript":  "C:\\Users\\dell\\Documents\\Codex\\2026-10-01\\referenced-chatgpt-conversation-this-is-an\\work\\QA-Browser-Lifecycle\\Ensure-QA-Browser.ps1",
+                      "startTimeoutSeconds":  90
+                  },
+    "nexus":  {
+                  "appHost":  "dev-web.nexus.internal",
+                  "appUrl":  "http://dev-web.nexus.internal/projects",
+                  "externalReachabilityUrl":  "https://dev-web.nexus.inertia.systems",
+                  "externalCheckEnabled":  false
+              },
+    "workspace":  {
+                      "path":  "C:\\Users\\dell\\OneDrive\\Documents\\QA\\Inertia Project\\06_Automation\\04_Automation"
+                  },
+    "logging":  {
+                    "dir":  "C:\\Users\\dell\\One-QA-Agent\\logs",
+                    "retentionDays":  14,
+                    "maxFileSizeKB":  2048
+                }
+}
